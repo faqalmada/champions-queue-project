@@ -4,13 +4,12 @@ import streamlit as st
 
 @st.cache(persist=True)
 def queryPlayersDataTable():
-    # Esta función recibe un EsportsClient(site) y una query de Leaguepedia con los siguientes campos: 
-    # "P.OverviewPage, P.ID, P.Name, P.Country, P.Age, P.Role, P.Team"
+    # Esta función devuelve una lista de diccionarios con 
 
-    # Llamada a la API de Leaguepedia
+    # Crea un cliente de leaguepedia
     site= EsportsClient('lol')
 
-    # Query de Leaguepedia para Players: EBRO
+    # Query de Leaguepedia: Busca 
     response = site.cargo_client.query(
         # Todos los Players
         limit = "max",
@@ -18,7 +17,7 @@ def queryPlayersDataTable():
         tables = "Players=P",
         # Visualizando solo los siguientes datos
         fields = "P.OverviewPage, P.ID, P.Name, P.Country, P.Age, P.Role, P.Team",
-        # Solamente aquellos que sean de la Liga Master Flow 2022 Apertura, y que hayan concluido
+        # Solamente aquellos que sean de EBRO.
         where = "(P.Team='EBRO') AND (P.IsRetired=FALSE) AND (P.ToWildrift=FALSE) AND " +
                 "(P.Role='Top' OR P.Role='Jungle' OR P.Role ='Mid' OR P.Role='Bot' OR P.Role='Support')",
         order_by= "P.ID ASC"
@@ -28,15 +27,12 @@ def queryPlayersDataTable():
     players = json.loads(json.dumps(response))
     
     for player in players:
-            
+        # Para cada uno de los players
         responseGetAccurateName = site.cargo_client.query(
-            # Todos los nombres
             limit = "max",
-            # Que tiene un jugador
+            # Buscamos todos sus nombres
             tables = "PlayerRedirects=PR",
-            # Visualizando los siguientes datos
             fields = "PR.OverviewPage, PR.AllName",
-            # Solamente aquellos que tengan el mismo OverviewPage
             where = "PR.OverviewPage='" + player['OverviewPage'] + "'"
         )
         
@@ -44,6 +40,8 @@ def queryPlayersDataTable():
         names = json.loads(json.dumps(responseGetAccurateName))
         
         for name in names:
+            # Para cada uno de los nombres que tuvo el jugador, buscamos sus partidas
+            # Esto es para evitar perder partidas debido a cambios de nombres
             responseMatchesPlayer = site.cargo_client.query(
                     # Todos los champions jugados
                     limit = "max",
@@ -57,6 +55,7 @@ def queryPlayersDataTable():
             
             matches = json.loads(json.dumps(responseMatchesPlayer))
             
+            # Cambios los Winners="Yes" por "1"s para que sea más fácil de calcular
             for match in matches:
                 if match['Win'] == 'Yes':
                     match['Win'] = 1
@@ -67,12 +66,12 @@ def queryPlayersDataTable():
             
             datatable.extend(matches)
     
+    # Devolvemos la lista completa con todos los partidos de todos los jugadores
     return datatable
 
 @st.cache
 def queryPlayersNames():
-    # Esta función usa un EsportsClient(site) y una query de LeaguePedia con los siguientes campos:
-    # "P.OverviewPage, P.ID, P.Name, P.Country, P.Age, P.Role, P.Team"
+    #Esta función es para conseguir todos los nombres de los jugadores y usarlos en la Select Box.
     
     # Llamada a la API de Leaguepedia
     site= EsportsClient('lol')
@@ -85,7 +84,7 @@ def queryPlayersNames():
         tables = "Players=P",
         # Visualizando solo los siguientes datos
         fields = "P.OverviewPage, P.ID, P.Name, P.Country, P.Age, P.Role, P.Team",
-        # Solamente aquellos que sean de la Liga Master Flow 2022 Apertura, y que hayan concluido
+        # Solamente aquellos que sean de EBRO.
         where = "(P.Team='EBRO') AND P.IsRetired=FALSE AND P.ToWildrift=FALSE AND " +
                 "(P.Role='Top' OR P.Role='Jungle' OR P.Role ='Mid' OR P.Role='Bot' OR P.Role='Support')",
         order_by= "P.ID ASC"
