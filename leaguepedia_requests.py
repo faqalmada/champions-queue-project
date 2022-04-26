@@ -1,20 +1,7 @@
-"""
-Created on 13/03/2022
-@author: GuzH
-"""
-
-import streamlit as st
-import pandas as pd
 from mwrogue.esports_client import EsportsClient
 import json
-import plotly.express as px
+import streamlit as st
 
-st.set_page_config(page_title="Test APP",layout="wide",initial_sidebar_state="expanded")
-st.title("Test APP: Historial De Jugadores")
-st.subheader("Liga Master Flow 2022 / Opening Season:")
-st.subheader("Players de EBRO Gaming")
-
-# Get all data
 @st.cache(persist=True)
 def queryPlayersDataTable():
     # Esta función recibe un EsportsClient(site) y una query de Leaguepedia con los siguientes campos: 
@@ -106,32 +93,3 @@ def queryPlayersNames():
 
     players = json.loads(json.dumps(response))
     return players
-
-data = queryPlayersDataTable()
-datadf = pd.DataFrame(data)
-
-players = queryPlayersNames()
-playersdf = pd.DataFrame(players)
-
-players_list = playersdf.sort_values('ID')['ID']
-
-player_name = st.selectbox("Elige un jugador", players_list)
-player_data = datadf[datadf.Name == player_name]
-
-col1, col2 = st.columns(2)
-
-with col1:
-    st.write("Historial:")
-    st.dataframe(player_data,800,337)
-    
-with col2:
-    # Group the match history by champion to see which ones were played the most
-    # Check plotly doc here: https://plotly.com/python/pie-charts/
-    fig = px.pie(player_data, names='Champion', title="Campeones Jugados:")
-    fig.update_traces(textinfo='value')
-    # Once again streamlit has a way to display what we want
-    st.plotly_chart(fig)
-
-fig = px.histogram(player_data, x="Champion", color="Champion", y="Win", title="Wins")
-fig.update_layout(barmode='stack', xaxis={'categoryorder': 'category ascending'})
-st.plotly_chart(fig)
