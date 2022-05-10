@@ -18,7 +18,7 @@ def queryPlayersDataTable():
         # Visualizando solo los siguientes datos
         fields = "P.OverviewPage, P.ID, P.Name, P.Country, P.Age, P.Role, P.Team",
         # Solamente aquellos que sean de EBRO.
-        where = "(P.Team='EBRO') AND (P.IsRetired=FALSE) AND (P.ToWildrift=FALSE) AND " +
+        where = "(P.Team='Descuydado Esports' OR P.Team='Skull Cracker' OR P.Team='Pirate Dream' OR P.Team='AceS GaminG' OR P.Team='Geekside Esports' OR P.Team='Waia Snikt' OR P.Team='Hooked Esports') AND P.IsRetired=FALSE AND P.ToWildrift=FALSE AND " +
                 "(P.Role='Top' OR P.Role='Jungle' OR P.Role ='Mid' OR P.Role='Bot' OR P.Role='Support')",
         order_by= "P.ID ASC"
     )
@@ -49,7 +49,7 @@ def queryPlayersDataTable():
                     tables = "ScoreboardPlayers=SP",
                     # Visualizando solo los siguientes datos
                     fields = "SP.Name, SP.Link, SP.Champion, SP.Kills, SP.Deaths, SP.Assists, SP.PlayerWin=Win, SP.DateTime_UTC, ",
-                    where = "SP.Link='" + name['AllName'] + "' AND (SP.OverviewPage='Liga Master Flow/2022 Season/Opening Season' OR SP.OverviewPage='Liga Master Flow/2022 Season/Opening Playoffs')",
+                    where = "SP.Link='" + name['AllName'] + "' AND (SP.OverviewPage='Volcano League/2022 Season/Opening Season' OR SP.OverviewPage='Volcano League/2022 Season/Opening Playoffs')",
                     order_by= "SP.DateTime_UTC DESC"
                 )
             
@@ -85,7 +85,7 @@ def queryPlayersNames():
         # Visualizando solo los siguientes datos
         fields = "P.OverviewPage, P.ID, P.Name, P.Country, P.Age, P.Role, P.Team",
         # Solamente aquellos que sean de EBRO.
-        where = "(P.Team='EBRO') AND P.IsRetired=FALSE AND P.ToWildrift=FALSE AND " +
+        where = "(P.Team='Descuydado Esports' OR P.Team='Skull Cracker' OR P.Team='Pirate Dream' OR P.Team='AceS GaminG' OR P.Team='GeekSide Esports' OR P.Team='Waia Snikt' OR P.Team='Hooked Esports') AND P.IsRetired=FALSE AND P.ToWildrift=FALSE AND " +
                 "(P.Role='Top' OR P.Role='Jungle' OR P.Role ='Mid' OR P.Role='Bot' OR P.Role='Support')",
         order_by= "P.ID ASC"
     )

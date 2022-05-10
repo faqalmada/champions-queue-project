@@ -12,8 +12,8 @@ def main():
     # Setea los títulos y subtítulos de la página
     st.set_page_config(page_title="Test APP",layout="wide",initial_sidebar_state="expanded")
     st.title("Test APP: Historial De Jugadores")
-    st.subheader("Liga Master Flow 2022 / Opening Season:")
-    st.subheader("Players de EBRO Gaming")
+    st.subheader("Volcano League 2022 / Opening Season | Playoffs:")
+    st.subheader("Players de Ecuador")
 
     # Consigue toda la data
     data = queryPlayersDataTable()
@@ -24,11 +24,11 @@ def main():
     playersdf = pd.DataFrame(players)
 
     # Ordena a los nombres de los jugadores alfabeticamente
-    players_list = playersdf.sort_values('ID')['ID']
+    players_list = playersdf['Team'] + ' | ' + playersdf.sort_values('Team')['ID']
 
     # Crea un Select Box para elegir el jugador
     player_name = st.selectbox("Elige un jugador", players_list)
-    player_data = datadf[datadf.Name == player_name]
+    player_data = datadf[datadf.Name == player_name.split(' | ')[1]]
 
     # Divide el espacio en dos columnas
     col1, col2 = st.columns(2)
@@ -52,5 +52,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
-    st.write("Hecho por [GuzH](https://twitter.com/guzhotero) - [Mira el codigo aca](https://github.com/GuzH09/match-history-app-test)")
