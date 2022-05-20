@@ -2,7 +2,7 @@ from mwrogue.esports_client import EsportsClient
 import json
 import streamlit as st
 
-@st.cache(persist=True)
+@st.cache(persist=True, suppress_st_warning=True)
 def queryPlayersDataTableForLastTournament():
     # Esta función devuelve una lista de diccionarios con 
 
@@ -69,7 +69,7 @@ def queryPlayersDataTableForLastTournament():
     # Devolvemos la lista completa con todos los partidos de todos los jugadores
     return datatable
 
-@st.cache(persist=True)
+@st.cache(suppress_st_warning=True)
 def queryPlayersDataTableForAllTournaments():
     # Esta función devuelve una lista de diccionarios con 
 
@@ -85,14 +85,14 @@ def queryPlayersDataTableForAllTournaments():
         # Visualizando solo los siguientes datos
         fields = "P.OverviewPage, P.ID, P.Name, P.Country, P.Age, P.Role, P.Team",
         # Todos los equipos.
-        where = "(P.Team='Descuydado Esports' OR P.Team='Skull Cracker' OR P.Team='Pirate Dream' OR P.Team='AceS GaminG' OR P.Team='Geekside Esports' OR P.Team='Waia Snikt' OR P.Team='Hooked Esports') AND P.IsRetired=FALSE AND P.ToWildrift=FALSE AND " +
+        where = "(P.Team='Descuydado Esports' OR P.Team='Skull Cracker' OR P.Team='Pirate Dream' OR P.Team='AceS GaminG' OR P.Team='Geekside Esports' OR P.Team='Waia Snikt' OR P.Team='Aguilas Doradas') AND " +
                 "(P.Role='Top' OR P.Role='Jungle' OR P.Role ='Mid' OR P.Role='Bot' OR P.Role='Support')",
         order_by= "P.ID ASC"
     )
 
     datatable=[]
     players = json.loads(json.dumps(response))
-    
+
     for player in players:
         # Para cada uno de los players
         responseGetAccurateName = site.cargo_client.query(
@@ -116,12 +116,12 @@ def queryPlayersDataTableForAllTournaments():
                     tables = "ScoreboardPlayers=SP",
                     # Visualizando solo los siguientes datos
                     fields = "SP.Name, SP.Link, SP.Champion, SP.Kills, SP.Deaths, SP.Assists, SP.PlayerWin=Win, SP.DateTime_UTC, ",
-                    where = "SP.Link='" + name['AllName'] + "' AND (SP.OverviewPage='Volcano League/2021 Season/Opening Season' OR 'Volcano League/2021 Season/Opening Playoffs' OR 'Volcano League/2021 Season/Closing Season' OR 'Volcano League/2021 Season/Closing Playoffs' OR 'Volcano League/2021 Season/Volcano Cup' OR 'Volcano League/2022 Season/Opening Season' OR 'Volcano League/2022 Season/Opening Playoffs' OR 'Volcano League/2022 Season/Closing Season')",
+                    where = "SP.Link='" + name['AllName'] + "' AND (SP.OverviewPage='Liga Master Flow/2022 Season/Opening Season' OR SP.OverviewPage='Claro Stars League/2021 Season/Opening Season' OR SP.OverviewPage='Claro Stars League/2021 Season/Opening Playoffs' OR SP.OverviewPage='Claro Stars League/2021 Season/Closing Season' OR SP.OverviewPage='Claro Stars League/2021 Season/Closing Playoffs' OR SP.OverviewPage='Claro Stars League/2021 Season/Stars Cup' OR SP.OverviewPage='Claro Stars League/2022 Season/Opening Season' OR SP.OverviewPage='Claro Stars League/2022 Season/Opening Playoffs' OR SP.OverviewPage='Claro Stars League/2022 Season/Closing Season' OR SP.OverviewPage='Volcano League/2021 Season/Opening Season' OR SP.OverviewPage='Volcano League/2021 Season/Opening Playoffs' OR SP.OverviewPage='Volcano League/2021 Season/Closing Season' OR SP.OverviewPage='Volcano League/2021 Season/Closing Playoffs' OR SP.OverviewPage='Volcano League/2021 Season/Volcano Cup' OR SP.OverviewPage='Volcano League/2022 Season/Opening Season' OR SP.OverviewPage='Volcano League/2022 Season/Opening Playoffs' OR SP.OverviewPage='Volcano League/2022 Season/Closing Season' OR SP.OverviewPage='Golden League/2021 Season/Opening Season' OR SP.OverviewPage='Golden League/2021 Season/Opening Playoffs' OR SP.OverviewPage='Golden League/2021 Season/Closing Season' OR SP.OverviewPage='Golden League/2021 Season/Closing Playoffs' OR SP.OverviewPage='Golden League/2021 Season/Golden Cup' OR SP.OverviewPage='Golden League/2022 Season/Opening Season' OR SP.OverviewPage='Golden League/2022 Season/Opening Playoffs' OR SP.OverviewPage='División de Honor/2021 Season/Opening Season' OR SP.OverviewPage='División de Honor/2021 Season/Opening Playoffs' OR SP.OverviewPage='División de Honor/2021 Season/Closing Season' OR SP.OverviewPage='División de Honor/2021 Season/Closing Playoffs' OR SP.OverviewPage='División de Honor/2022 Season/Opening Season' OR SP.OverviewPage='División de Honor/2022 Season/Opening Playoffs' OR SP.OverviewPage='Elements League/2022 Season/Opening Season' OR SP.OverviewPage='Elements League/2022 Season/Opening Playoffs' OR SP.OverviewPage='Tempest League/2021 Season' OR SP.OverviewPage='Tempest League/2021 Season Playoffs')",
                     order_by= "SP.DateTime_UTC DESC"
                 )
             
             matches = json.loads(json.dumps(responseMatchesPlayer))
-            
+
             # Cambios los Winners="Yes" por "1"s para que sea más fácil de calcular
             for match in matches:
                 if match['Win'] == 'Yes':
@@ -136,7 +136,7 @@ def queryPlayersDataTableForAllTournaments():
     # Devolvemos la lista completa con todos los partidos de todos los jugadores
     return datatable
 
-@st.cache
+@st.cache(suppress_st_warning=True)
 def queryPlayersNames():
     #Esta función es para conseguir todos los nombres de los jugadores y usarlos en la Select Box.
     
@@ -152,7 +152,7 @@ def queryPlayersNames():
         # Visualizando solo los siguientes datos
         fields = "P.OverviewPage, P.ID, P.Name, P.Country, P.Age, P.Role, P.Team",
         # Todos los equipos.
-        where = "(P.Team='Descuydado Esports' OR P.Team='Skull Cracker' OR P.Team='Pirate Dream' OR P.Team='AceS GaminG' OR P.Team='GeekSide Esports' OR P.Team='Waia Snikt' OR P.Team='Aguilas Doradas') AND P.IsRetired=FALSE AND P.ToWildrift=FALSE AND " +
+        where = "(P.Team='Descuydado Esports' OR P.Team='Skull Cracker' OR P.Team='Pirate Dream' OR P.Team='AceS GaminG' OR P.Team='GeekSide Esports' OR P.Team='Waia Snikt' OR P.Team='Aguilas Doradas') AND " +
                 "(P.Role='Top' OR P.Role='Jungle' OR P.Role ='Mid' OR P.Role='Bot' OR P.Role='Support')",
         order_by= "P.ID ASC"
     )
