@@ -122,15 +122,11 @@ def queryPlayersDataTableForAllTournaments():
             
             matches = json.loads(json.dumps(responseMatchesPlayer))
 
-            # Cambios los Winners="Yes" por "1"s para que sea más fácil de calcular
+            # Saco registros innecesarios
             for match in matches:
-                if match['Win'] == 'Yes':
-                    match['Win'] = 1
-                else:
-                    match['Win'] = 0
                 match.popitem()
                 match.pop("Link")
-            
+
             datatable.extend(matches)
     
     # Devolvemos la lista completa con todos los partidos de todos los jugadores
