@@ -6,49 +6,68 @@ Created on 25/03/2022
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from leaguepedia_requests import queryPlayersDataTable, queryPlayersNames
+from leaguepedia_requests import queryPlayersDataTableForAllTournaments, queryPlayersDataTableForLastTournament, queryPlayersNames
 
 def main():
     # Setea los títulos y subtítulos de la página
-    st.set_page_config(page_title="Test APP",layout="wide",initial_sidebar_state="expanded")
-    st.title("Test APP: Historial De Jugadores")
-    st.subheader("Volcano League 2022 / Opening Season | Playoffs:")
-    st.subheader("Players de Ecuador")
+    st.set_page_config(page_title="Historial Ecuador",layout="wide",initial_sidebar_state="expanded")
+    st.title("Historial de jugadores Ecuador")
 
     # Consigue toda la data
-    data = queryPlayersDataTable()
+    dataLastTournament = queryPlayersDataTableForLastTournament()
+    data = queryPlayersDataTableForAllTournaments()
     players = queryPlayersNames()
     
     # DataFrame all data
+    datalastdf = pd.DataFrame(dataLastTournament)
     datadf = pd.DataFrame(data)
     playersdf = pd.DataFrame(players)
 
-    # Ordena a los nombres de los jugadores alfabeticamente
-    players_list = playersdf['Team'] + ' | ' + playersdf.sort_values('Team')['ID']
+    # Ordena a los nombres de los jugadores por equipo
+    playersdf = playersdf.sort_values('Team')
+
+    # Arma la lista de jugadores para crear el select
+    players_list = playersdf['Team'] + ' | ' + playersdf['ID']
 
     # Crea un Select Box para elegir el jugador
-    player_name = st.selectbox("Elige un jugador", players_list)
-    player_data = datadf[datadf.Name == player_name.split(' | ')[1]]
+    player_name = st.selectbox("Jugador", players_list)
 
-    # Divide el espacio en dos columnas
-    col1, col2 = st.columns(2)
+    player_data_last_tournament = []
+    player_data_all_tournaments = []
 
-    # Columna una: Muestra el historial del jugador
-    with col1:
-        st.write("Historial:")
-        st.dataframe(player_data,800,337)
+    if 'Name' in datalastdf:
+        player_data_last_tournament = datalastdf[datalastdf.Name == player_name.split(' | ')[1]]
+    
+    if 'Name' in datadf:
+        player_data_all_tournaments = datadf[datadf.Name == player_name.split(' | ')[1]]
+
+    # Divide el espacio en dos columnas (por ahora no es la idea dividir)
+    # col1, col2 = st.columns(2)
+
+    # Tabla de arriba: muestra el historial del torneo vigente
+    st.write("Historial del torneo vigente:")
+    st.dataframe(player_data_last_tournament,950)
+
+    # Tabla de abajo: muestra el historial del jugador
+    # with col1: (por ahora no es la idea dividir)
+    st.write("Historial de todos los torneos:")
+    st.dataframe(player_data_all_tournaments,950)
         
-    # Columna dos: Muestra todos sus campeones jugados en un grafico circular
-    with col2:
-        # https://plotly.com/python/pie-charts/
-        fig = px.pie(player_data, names='Champion', title="Campeones Jugados:")
+    # Gráfico pie: muestra todos sus campeones jugados en un grafico circular
+    # with col2: (por ahora no es la idea dividir)
+    # https://plotly.com/python/pie-charts/
+    fig = []
+
+    st.write(player_data_all_tournaments)
+
+    if 'Champion' in player_data_all_tournaments:
+        fig = px.pie(player_data_all_tournaments, names='Champion', title="Campeones jugados:")
         fig.update_traces(textinfo='value')
         st.plotly_chart(fig)
-
-    # Hace un histograma al final de la página con las wins sumadas de cada campeón para el jugador elegido
-    fig = px.histogram(player_data, x="Champion", color="Champion", y="Win", title="Wins")
-    fig.update_layout(barmode='stack', xaxis={'categoryorder': 'category ascending'})
-    st.plotly_chart(fig)
+        # Hace un histograma al final de la página con las wins sumadas de cada campeón para el jugador elegido
+        fig = px.histogram(player_data_all_tournaments, x="Champion", color="Champion", y="Win", title="Wins")
+        fig.update_layout(barmode='stack', xaxis={'categoryorder': 'category ascending'})
+        st.plotly_chart(fig)
 
 if __name__ == "__main__":
     main()

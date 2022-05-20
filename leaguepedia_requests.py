@@ -3,7 +3,7 @@ import json
 import streamlit as st
 
 @st.cache(persist=True)
-def queryPlayersDataTable():
+def queryPlayersDataTableForLastTournament():
     # Esta función devuelve una lista de diccionarios con 
 
     # Crea un cliente de leaguepedia
@@ -17,7 +17,7 @@ def queryPlayersDataTable():
         tables = "Players=P",
         # Visualizando solo los siguientes datos
         fields = "P.OverviewPage, P.ID, P.Name, P.Country, P.Age, P.Role, P.Team",
-        # Solamente aquellos que sean de EBRO.
+        # Todos los equipos.
         where = "(P.Team='Descuydado Esports' OR P.Team='Skull Cracker' OR P.Team='Pirate Dream' OR P.Team='AceS GaminG' OR P.Team='Geekside Esports' OR P.Team='Waia Snikt' OR P.Team='Hooked Esports') AND P.IsRetired=FALSE AND P.ToWildrift=FALSE AND " +
                 "(P.Role='Top' OR P.Role='Jungle' OR P.Role ='Mid' OR P.Role='Bot' OR P.Role='Support')",
         order_by= "P.ID ASC"
@@ -49,7 +49,74 @@ def queryPlayersDataTable():
                     tables = "ScoreboardPlayers=SP",
                     # Visualizando solo los siguientes datos
                     fields = "SP.Name, SP.Link, SP.Champion, SP.Kills, SP.Deaths, SP.Assists, SP.PlayerWin=Win, SP.DateTime_UTC, ",
-                    where = "SP.Link='" + name['AllName'] + "' AND (SP.OverviewPage='Volcano League/2022 Season/Opening Season' OR SP.OverviewPage='Volcano League/2022 Season/Opening Playoffs')",
+                    where = "SP.Link='" + name['AllName'] + "' AND (SP.OverviewPage='Volcano League/2022 Season/Closing Season')",
+                    order_by= "SP.DateTime_UTC DESC"
+                )
+            
+            matches = json.loads(json.dumps(responseMatchesPlayer))
+            
+            # Cambios los Winners="Yes" por "1"s para que sea más fácil de calcular
+            for match in matches:
+                if match['Win'] == 'Yes':
+                    match['Win'] = 1
+                else:
+                    match['Win'] = 0
+                match.popitem()
+                match.pop("Link")
+            
+            datatable.extend(matches)
+    
+    # Devolvemos la lista completa con todos los partidos de todos los jugadores
+    return datatable
+
+@st.cache(persist=True)
+def queryPlayersDataTableForAllTournaments():
+    # Esta función devuelve una lista de diccionarios con 
+
+    # Crea un cliente de leaguepedia
+    site= EsportsClient('lol')
+
+    # Query de Leaguepedia: Busca 
+    response = site.cargo_client.query(
+        # Todos los Players
+        limit = "max",
+        # Que aparecen en la tabla Players: https://lol.fandom.com/wiki/Special:CargoTables/Players
+        tables = "Players=P",
+        # Visualizando solo los siguientes datos
+        fields = "P.OverviewPage, P.ID, P.Name, P.Country, P.Age, P.Role, P.Team",
+        # Todos los equipos.
+        where = "(P.Team='Descuydado Esports' OR P.Team='Skull Cracker' OR P.Team='Pirate Dream' OR P.Team='AceS GaminG' OR P.Team='Geekside Esports' OR P.Team='Waia Snikt' OR P.Team='Hooked Esports') AND P.IsRetired=FALSE AND P.ToWildrift=FALSE AND " +
+                "(P.Role='Top' OR P.Role='Jungle' OR P.Role ='Mid' OR P.Role='Bot' OR P.Role='Support')",
+        order_by= "P.ID ASC"
+    )
+
+    datatable=[]
+    players = json.loads(json.dumps(response))
+    
+    for player in players:
+        # Para cada uno de los players
+        responseGetAccurateName = site.cargo_client.query(
+            limit = "max",
+            # Buscamos todos sus nombres
+            tables = "PlayerRedirects=PR",
+            fields = "PR.OverviewPage, PR.AllName",
+            where = "PR.OverviewPage='" + player['OverviewPage'] + "'"
+        )
+        
+        names = []
+        names = json.loads(json.dumps(responseGetAccurateName))
+                
+        for name in names:
+            # Para cada uno de los nombres que tuvo el jugador, buscamos sus partidas
+            # Esto es para evitar perder partidas debido a cambios de nombres
+            responseMatchesPlayer = site.cargo_client.query(
+                    # Todos los champions jugados
+                    limit = "max",
+                    # Que aparecen en la tabla ScoreboardPlayers: https://lol.fandom.com/wiki/Special:CargoTables/ScoreboardPlayers
+                    tables = "ScoreboardPlayers=SP",
+                    # Visualizando solo los siguientes datos
+                    fields = "SP.Name, SP.Link, SP.Champion, SP.Kills, SP.Deaths, SP.Assists, SP.PlayerWin=Win, SP.DateTime_UTC, ",
+                    where = "SP.Link='" + name['AllName'] + "' AND (SP.OverviewPage='Volcano League/2021 Season/Opening Season' OR 'Volcano League/2021 Season/Opening Playoffs' OR 'Volcano League/2021 Season/Closing Season' OR 'Volcano League/2021 Season/Closing Playoffs' OR 'Volcano League/2021 Season/Volcano Cup' OR 'Volcano League/2022 Season/Opening Season' OR 'Volcano League/2022 Season/Opening Playoffs' OR 'Volcano League/2022 Season/Closing Season')",
                     order_by= "SP.DateTime_UTC DESC"
                 )
             
@@ -84,8 +151,8 @@ def queryPlayersNames():
         tables = "Players=P",
         # Visualizando solo los siguientes datos
         fields = "P.OverviewPage, P.ID, P.Name, P.Country, P.Age, P.Role, P.Team",
-        # Solamente aquellos que sean de EBRO.
-        where = "(P.Team='Descuydado Esports' OR P.Team='Skull Cracker' OR P.Team='Pirate Dream' OR P.Team='AceS GaminG' OR P.Team='GeekSide Esports' OR P.Team='Waia Snikt' OR P.Team='Hooked Esports') AND P.IsRetired=FALSE AND P.ToWildrift=FALSE AND " +
+        # Todos los equipos.
+        where = "(P.Team='Descuydado Esports' OR P.Team='Skull Cracker' OR P.Team='Pirate Dream' OR P.Team='AceS GaminG' OR P.Team='GeekSide Esports' OR P.Team='Waia Snikt' OR P.Team='Aguilas Doradas') AND P.IsRetired=FALSE AND P.ToWildrift=FALSE AND " +
                 "(P.Role='Top' OR P.Role='Jungle' OR P.Role ='Mid' OR P.Role='Bot' OR P.Role='Support')",
         order_by= "P.ID ASC"
     )
