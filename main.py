@@ -58,8 +58,6 @@ def main():
     # https://plotly.com/python/pie-charts/
     fig = []
 
-    st.write(player_data_all_tournaments)
-
     if 'Champion' in player_data_all_tournaments:
         fig = px.pie(player_data_all_tournaments, names='Champion', title="Campeones jugados:")
         fig.update_traces(textinfo='value')
