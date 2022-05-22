@@ -63,7 +63,7 @@ def main():
         fig.update_traces(textinfo='value')
         st.plotly_chart(fig)
         # Hace un histograma al final de la página con las wins sumadas de cada campeón para el jugador elegido
-        fig = px.histogram(player_data_all_tournaments, x="Champion", color="Champion", y="Win", title="Wins")
+        fig = px.histogram(player_data_all_tournaments, x="Champion", color="Champion", y="Win", title="Victorias por campeón")
         fig.update_layout(barmode='stack', xaxis={'categoryorder': 'category ascending'})
         st.plotly_chart(fig)
 
